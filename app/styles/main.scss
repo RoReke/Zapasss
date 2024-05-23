@@ -1,0 +1,7 @@
+.btt_delete {
+  &::before {
+    content: url('../../static/img/trash.svg');
+    position: relative;
+    top: 0.188rem;
+  }
+}
