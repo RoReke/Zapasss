@@ -1,0 +1,13 @@
+name: Zapatillas_app
+title: Zapatillas_app
+username: rekes
+account: rekes
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12060144
+bundleId: 8653574
+url: https://rekes.shinyapps.io/Zapatillas_app/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .Rprofile|data/Lista precios.csv|scripts/create_tables.R
