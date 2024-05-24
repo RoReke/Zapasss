@@ -43,6 +43,7 @@ dbGetQuery(
     "CREATE TABLE {SCHEMA}.facturacion (
     id uuid NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    factura_nro int NOT NULL,
     fecha date,
     cliente varchar(100),
     articulo varchar(50) NOT NULL,

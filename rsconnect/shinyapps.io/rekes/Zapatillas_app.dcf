@@ -5,7 +5,7 @@ account: rekes
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 12060144
-bundleId: 8655931
+bundleId: 8656435
 url: https://rekes.shinyapps.io/Zapatillas_app/
 version: 1
 asMultiple: FALSE

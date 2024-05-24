@@ -25,14 +25,17 @@ server <- function(id, db_manager) {
   moduleServer(id, function(input, output, session) {
     observeEvent(input$facturar, {
       productos <- db_manager$get_productos()
+      factura_nro <- db_manager$get_last_number_factura() %>% pull(factura_nro)
+      factura_nro <- if (!isTruthy(factura_nro)) 1 else factura_nro + 1  
       showModal(
         modalDialog(
           size = "l",
           fluidPage(
             useShinyjs(),
             fluidRow(
-              dateInput(session$ns("date"), value = today(), label = "Fecha: ", format = "dd/mm/yyyy"),
-              textInput(session$ns("cliente"), label = "Cliente: ")
+              column(4, dateInput(session$ns("date"), value = today(), label = "Fecha: ", format = "dd/mm/yyyy")),
+              column(4, textInput(session$ns("cliente"), label = "Cliente: ")),
+              column(4, disabled(numericInput(session$ns("factura_nro"), label = "Factura: ", value = factura_nro)))
             ), 
             hr(style="margin-top: 5px; margin-bottom: 5px;"),
             fluidRow(
@@ -157,9 +160,10 @@ server <- function(id, db_manager) {
     
     update_table <- reactiveVal(0)
     observeEvent(input$confirmar_facturar, {
-      req(nrow(data_table_add() > 0))
+      req(nrow(data_table_add()) > 0)
       data <- data.frame(
         id = uuid::UUIDgenerate(),
+        factura_nro = input$factura_nro,
         fecha = input$date,
         cliente = input$cliente,
         articulo = data_table_add()$articulo,

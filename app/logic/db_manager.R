@@ -102,6 +102,10 @@ DatabaseManager <- R6Class( #nolint
       dbGetQuery(private$connection, "SELECT * FROM productos")
     },
     
+    get_last_number_factura = function() {
+      dbGetQuery(private$connection, "SELECT factura_nro FROM facturacion ORDER BY factura_nro DESC LIMIT 1")
+    },
+    
     delete_facturacion_by_id = function(id) {
       dbExecute(
         private$connection,
