@@ -113,7 +113,8 @@ server <- function(id, db_manager) {
           mutate(
             precio_u = p_mayorista,
             precio_total = p_mayorista * cantidad
-          )
+          ) %>% 
+          select(-p_mayorista)
         data_table_add(new_data)
       }
       shinyjs::reset("articulo")
