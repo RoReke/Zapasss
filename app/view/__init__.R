@@ -1,4 +1,5 @@
 box::use(
   ./facturacion,
-  ./productos
+  ./productos,
+  ./liquidar_fabrica
 )

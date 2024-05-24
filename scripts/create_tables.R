@@ -50,8 +50,10 @@ dbGetQuery(
     cantidad int NOT NULL,
     talle int,
     color varchar(50),
+    costo numeric NOT NULL,
     precio_venta_unitario numeric NOT NULL,
-    precio_total numeric NOT NULL
+    precio_total numeric NOT NULL,
+    esta_liquidado boolean DEFAULT FALSE NOT NULL 
     );",
     .con = con
   )

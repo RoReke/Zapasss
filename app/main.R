@@ -6,7 +6,8 @@ box::use(
 
 box::use(
   view = app/view,
-  app/logic/db_manager[db_manager]
+  app/logic/db_manager[db_manager],
+  app/logic/state_manager[state_manager]
 )
 
 # Read environment variables
@@ -19,10 +20,10 @@ db_credentials <- config::get(
 
 db_manager <- db_manager(db_credentials)
 
-lista_precios <- db_manager$get_productos()
-  
+state_manager <- state_manager()
 menu <- tags$ul(
   tags$li(a(class = "item", href = route_link("/"), "Facturación")),
+  tags$li(a(class = "item", href = route_link("liquidar_fabrica"), "Liquidar")),
   tags$li(a(class = "item", href = route_link("lista_precios"), "Lista Precios"))
 )
 
@@ -42,6 +43,7 @@ ui <- function(id) {
     ),
     router_ui(
       route("/", view$facturacion$ui(ns("facturacion"))),
+      route("liquidar_fabrica", view$liquidar_fabrica$ui(ns("liquidar_fabrica"))),
       route("lista_precios", view$productos$ui(ns("productos"))),
     )
   )
@@ -52,8 +54,9 @@ ui <- function(id) {
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
     router_server()
-    view$facturacion$server("facturacion", db_manager)
-    view$productos$server("productos", db_manager)
+    view$facturacion$server("facturacion", db_manager, state_manager)
+    view$productos$server("productos", db_manager, state_manager)
+    view$liquidar_fabrica$server("liquidar_fabrica", db_manager, state_manager)
   })
 }
 

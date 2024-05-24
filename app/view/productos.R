@@ -18,7 +18,7 @@ ui <- function(id) {
 }
 
 #' @export
-server <- function(id, db_manager) {
+server <- function(id, db_manager, state_manager) {
   moduleServer(id, function(input, output, session) {
     upload <- reactiveValues(data=NULL)
     update_table <- reactiveVal(0)

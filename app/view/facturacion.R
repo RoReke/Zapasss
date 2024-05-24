@@ -21,7 +21,7 @@ ui <- function(id) {
 }
 
 #' @export
-server <- function(id, db_manager) {
+server <- function(id, db_manager, state_manager) {
   moduleServer(id, function(input, output, session) {
     observeEvent(input$facturar, {
       productos <- db_manager$get_productos()
@@ -91,6 +91,7 @@ server <- function(id, db_manager) {
       cantidad = numeric(),
       talle = integer(),
       color = character(),
+      costo = numeric(),
       precio_u = numeric(),
       precio_total = numeric(),
       stringsAsFactors = FALSE
@@ -100,11 +101,13 @@ server <- function(id, db_manager) {
       req(input$precio_total != 0)
       req(input$cantidades)
       req(input$articulo)
+      productos <- db_manager$get_productos()
       data <- data.frame(
         articulo = input$articulo,
         cantidad = input$cantidades,
         talle = input$talle,
         color = input$color,
+        costo = productos %>% filter(articulo == input$articulo) %>% pull(costo),
         precio_u = input$precio_u,
         precio_total = input$precio_total
       )
@@ -112,7 +115,7 @@ server <- function(id, db_manager) {
       if (sum(data_table_add()$cantidad) >= 6) {
         new_data <- data_table_add() %>% 
           select(-c(precio_u, precio_total)) %>% 
-          left_join(db_manager$get_productos() %>% select(articulo, p_mayorista), by = "articulo") %>% 
+          left_join(productos %>% select(articulo, p_mayorista), by = "articulo") %>% 
           mutate(
             precio_u = p_mayorista,
             precio_total = p_mayorista * cantidad
@@ -134,7 +137,7 @@ server <- function(id, db_manager) {
     output$table_add <- reactable:::renderReactable({
       req(data_table_add())
       reactable::reactable(
-        data_table_add()
+        data_table_add() %>% select(-costo)
       )
     })
     observeEvent(input$articulo, {
@@ -162,7 +165,7 @@ server <- function(id, db_manager) {
     observeEvent(input$confirmar_facturar, {
       req(nrow(data_table_add()) > 0)
       data <- data.frame(
-        id = uuid::UUIDgenerate(),
+        id = uuid::UUIDgenerate(n = nrow(data_table_add())),
         factura_nro = input$factura_nro,
         fecha = input$date,
         cliente = input$cliente,
@@ -170,6 +173,7 @@ server <- function(id, db_manager) {
         cantidad = data_table_add()$cantidad,
         talle = data_table_add()$talle,
         color = data_table_add()$color,
+        costo = data_table_add()$costo,
         precio_venta_unitario = data_table_add()$precio_u,
         precio_total = data_table_add()$precio_total
       )
@@ -181,12 +185,13 @@ server <- function(id, db_manager) {
       
       removeModal()
       update_table(update_table() + 1)
-      
+      state_manager$update_value("update_liquidacion_table", NULL, TRUE)
       data_table_add(data.frame(
         articulo = character(),
         cantidad = numeric(),
         talle = integer(),
         color = character(),
+        costo = numeric(),
         precio_u = numeric(),
         precio_total = numeric(),
         stringsAsFactors = FALSE
@@ -204,6 +209,14 @@ server <- function(id, db_manager) {
             show = FALSE
           ),
           "created_at" = colDef(
+            name = "",
+            show = FALSE
+          ),
+          "costo" = colDef(
+            name = "",
+            show = FALSE
+          ),
+          "esta_liquidado" = colDef(
             name = "",
             show = FALSE
           ),
