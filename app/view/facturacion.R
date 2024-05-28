@@ -33,9 +33,10 @@ server <- function(id, db_manager, state_manager) {
           fluidPage(
             useShinyjs(),
             fluidRow(
-              column(4, dateInput(session$ns("date"), value = today(), label = "Fecha: ", format = "dd/mm/yyyy")),
+              column(3, dateInput(session$ns("date"), value = today(), label = "Fecha: ", format = "dd/mm/yyyy")),
               column(4, textInput(session$ns("cliente"), label = "Cliente: ")),
-              column(4, disabled(numericInput(session$ns("factura_nro"), label = "Factura: ", value = factura_nro)))
+              column(3, disabled(numericInput(session$ns("factura_nro"), label = "Factura: ", value = factura_nro))),
+              column(2, checkboxInput(inputId = session$ns("es_revendedor"), label = "Revendedor"))
             ), 
             hr(style="margin-top: 5px; margin-bottom: 5px;"),
             fluidRow(
@@ -81,9 +82,58 @@ server <- function(id, db_manager, state_manager) {
             ),
             div("Regla de negocio: >=6 Precio Mayorista")
           ),
-          footer = div(modalButton("Cancelar"), actionButton(session$ns("confirmar_facturar"), "Facturar"))
+          footer = div(actionButton(session$ns("cerrar"), "Cerrar"), actionButton(session$ns("confirmar_facturar"), "Facturar"))
         )
       )
+    })
+    
+    observeEvent(input$cerrar, {
+      removeModal()
+      data_table_add(data.frame(
+        articulo = character(),
+        cantidad = numeric(),
+        talle = integer(),
+        color = character(),
+        costo = numeric(),
+        precio_u = numeric(),
+        precio_total = numeric(),
+        stringsAsFactors = FALSE
+      ))
+    })
+    
+    observeEvent(input$btt_view, {
+      data <- db_manager$get_facturacion_by_factura(input$btt_view)
+      factura_nro <- unique(data$factura_nro)
+      cliente <- unique(data$cliente)
+      fecha <- unique(data$fecha)
+      data <- data %>% select(articulo, cantidad, talle, color, precio_u = precio_venta_unitario, precio_total)
+      showModal(
+        modalDialog(
+          size = "l",
+          footer = modalButton("Cerrar"),
+          fluidPage(
+            useShinyjs(),
+            fluidRow(
+              column(4, disabled(dateInput(session$ns("date_v"), value = fecha, label = "Fecha: ", format = "dd/mm/yyyy"))),
+              column(4, disabled(textInput(session$ns("cliente_v"), label = "Cliente: ", value = cliente))),
+              column(4, disabled(numericInput(session$ns("factura_nro_v"), label = "Factura: ", value = factura_nro)))
+            ), 
+            hr(style="margin-top: 5px; margin-bottom: 5px;"),
+            fluidRow(
+              reactable::reactable(data, width = "100%") 
+            ),
+            hr(style="margin-top: 5px; margin-bottom: 5px;"),
+            fluidRow(
+              column(5,
+                disabled(numericInput(session$ns("total_q_v"), label = "Total Cantidades:", value = sum(data$cantidad)))
+              ),
+              column(5,
+                disabled(currencyInput(session$ns("total_v"), label = "Total: ", value = sum(data$precio_total), format = "dollar"))
+              )
+            )
+          )
+        )
+      )  
     })
     
     data_table_add <- reactiveVal(data.frame(
@@ -200,7 +250,7 @@ server <- function(id, db_manager, state_manager) {
     
     output$table <- renderReactable({
       update_table()
-      data <- db_manager$get_facturacion() %>% mutate(action_delete = "")
+      data <- db_manager$get_facturacion() %>% mutate(action_view = "", action_delete = "")
       reactable(
         data = data,
         columns = list(
@@ -232,6 +282,22 @@ server <- function(id, db_manager, state_manager) {
             name = "Precio Total",
             show = TRUE
           ),
+          action_view = colDef(
+            name = "",
+            maxWidth = 70,
+            sortable = FALSE,
+            html = TRUE,
+            align = "right",
+            cell = function(value, row_index, col_name) {
+              factura_nro <- data[row_index, "factura_nro"]
+              buttons_column(
+                session = session,
+                row_id = factura_nro,
+                btt_name = "btt_view",
+                class = "btt_view"
+              )
+            }
+          ),
           action_delete = colDef(
             name = "",
             maxWidth = 70,
@@ -250,6 +316,10 @@ server <- function(id, db_manager, state_manager) {
           )
         )
       )
+    })
+    
+    observeEvent(input$view, {
+      
     })
     
     observeEvent(input$btt_delete, {

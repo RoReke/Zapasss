@@ -106,6 +106,13 @@ DatabaseManager <- R6Class( #nolint
       dbGetQuery(private$connection, "SELECT factura_nro FROM facturacion ORDER BY factura_nro DESC LIMIT 1")
     },
     
+    get_facturacion_by_factura = function(factura_nro) {
+      dbGetQuery(
+        private$connection, 
+        glue_sql(.con = private$connection, "SELECT * FROM facturacion WHERE factura_nro = {factura_nro}")
+      )
+    },
+    
     update_esta_liquidado = function(ids) {
       purrr::walk(
         ids, 

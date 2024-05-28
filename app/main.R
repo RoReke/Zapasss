@@ -11,7 +11,7 @@ box::use(
 )
 
 # Read environment variables
-DB_SOURCE <- Sys.getenv("DB_SOURCE", unset = "local")
+DB_SOURCE <- "local"
 
 db_credentials <- config::get(
   value = DB_SOURCE,
@@ -19,8 +19,6 @@ db_credentials <- config::get(
 )
 
 db_manager <- db_manager(db_credentials)
-
-state_manager <- state_manager()
 menu <- tags$ul(
   tags$li(a(class = "item", href = route_link("/"), "Facturación")),
   tags$li(a(class = "item", href = route_link("liquidar_fabrica"), "Liquidar")),
@@ -54,6 +52,7 @@ ui <- function(id) {
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
     router_server()
+    state_manager <- state_manager()
     view$facturacion$server("facturacion", db_manager, state_manager)
     view$productos$server("productos", db_manager, state_manager)
     view$liquidar_fabrica$server("liquidar_fabrica", db_manager, state_manager)
