@@ -44,6 +44,7 @@ dbGetQuery(
     id uuid NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     factura_nro int NOT NULL,
+    compu varchar(20) NOT NULL,
     fecha date,
     cliente varchar(100),
     articulo varchar(50) NOT NULL,

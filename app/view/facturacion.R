@@ -21,8 +21,9 @@ ui <- function(id) {
 }
 
 #' @export
-server <- function(id, db_manager, state_manager) {
+server <- function(id, db_manager, state_manager, constants) {
   moduleServer(id, function(input, output, session) {
+    state_manager$set("update_facturacion", NULL)
     observeEvent(input$facturar, {
       productos <- db_manager$get_productos()
       factura_nro <- db_manager$get_last_number_factura() %>% pull(factura_nro)
@@ -217,6 +218,7 @@ server <- function(id, db_manager, state_manager) {
       data <- data.frame(
         id = uuid::UUIDgenerate(n = nrow(data_table_add())),
         factura_nro = input$factura_nro,
+        compu = constants$compu,
         fecha = input$date,
         cliente = input$cliente,
         articulo = data_table_add()$articulo,
@@ -250,6 +252,7 @@ server <- function(id, db_manager, state_manager) {
     
     output$table <- renderReactable({
       update_table()
+      state_manager$listen("update_facturacion")
       data <- db_manager$get_facturacion() %>% mutate(action_view = "", action_delete = "")
       reactable(
         data = data,

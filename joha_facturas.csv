@@ -1,0 +1,2 @@
+"id";"created_at";"factura_nro";"compu";"fecha";"cliente";"articulo";"cantidad";"talle";"color";"costo";"precio_venta_unitario";"precio_total";"esta_liquidado"
+"1C829466-1C8B-46D4-B408-8A6B825EB5D7";2024-05-29 14:29:21;1;"joha";2024-05-29;"Sergio";"205-210";10;15;"";6580;8600;86000;FALSE

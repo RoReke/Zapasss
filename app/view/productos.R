@@ -2,7 +2,8 @@ box::use(
   shiny[...],
   reactable[...],
   DT[...],
-  dplyr[...]
+  dplyr[...],
+  googledrive[...]
 )
 
 #' @export
@@ -18,7 +19,7 @@ ui <- function(id) {
 }
 
 #' @export
-server <- function(id, db_manager, state_manager) {
+server <- function(id, db_manager, state_manager, constants) {
   moduleServer(id, function(input, output, session) {
     upload <- reactiveValues(data=NULL)
     update_table <- reactiveVal(0)
@@ -68,6 +69,8 @@ server <- function(id, db_manager, state_manager) {
     
     observeEvent(input$save, {
       db_manager$update_productos(upload$data)
+      utils::write.csv2(upload$data, "productos.csv", row.names = FALSE)
+      drive_update(as_id(constants$productos_google_id), "productos.csv")
       removeModal()
       update_table(update_table() + 1)
     })

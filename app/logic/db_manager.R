@@ -138,6 +138,18 @@ DatabaseManager <- R6Class( #nolint
       )
     },
     
+    delete_facturacion_by_compu = function(compu) {
+      dbExecute(
+        private$connection,
+        glue_sql(
+          .con = private$connection,
+          "DELETE
+            FROM facturacion
+            WHERE compu = {compu}"
+        )
+      )
+    },
+    
     update_productos = function(data) {
       conn <- private$connection
       pool <- poolCheckout(conn)
