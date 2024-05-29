@@ -99,6 +99,12 @@ server <- function(id) {
         incProgress(10/15)
         db_manager$append_to_table("facturacion", facturacion_in_drive)
         state_manager$update_value("update_facturacion", NULL, TRUE)
+        
+        lista_precios <- drive_get(as_id(constants$productos_google_id)) %>% 
+          googledrive::drive_read_string(., encoding = "UTF-8") %>% 
+          utils::read.csv2(text = .)
+        db_manager$update_productos(lista_precios)
+        state_manager$update_value("update_products", NULL, TRUE)
       })
     })
     

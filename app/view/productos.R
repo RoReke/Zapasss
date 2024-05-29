@@ -23,6 +23,7 @@ server <- function(id, db_manager, state_manager, constants) {
   moduleServer(id, function(input, output, session) {
     upload <- reactiveValues(data=NULL)
     update_table <- reactiveVal(0)
+    state_manager$set("update_products", NULL)
     
     observeEvent(input$btt_upload, {
       showModal(
@@ -86,6 +87,7 @@ server <- function(id, db_manager, state_manager, constants) {
     
     output$table <- renderReactable({
       update_table()
+      state_manager$listen("update_products")
       reactable(
         db_manager$get_productos(),
         columns = list(
